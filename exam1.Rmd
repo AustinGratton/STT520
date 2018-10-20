@@ -89,3 +89,87 @@ We would need a sample size of `68` with equal sized samples of public and priva
 
 ## Question 4
 
+#### Category/Public
+
+``` {r}
+df$categorydi = ifelse(df$category < 1, c(0), c(1))
+cat.tab1 = table(df$categorydi, df$public)
+sens1 = cat.tab1[2,2]/sum(cat.tab1[,2])
+spec1 = cat.tab1[1,1]/sum(cat.tab1[,1])
+
+df$categorydi = ifelse(df$category < 2, c(0), c(1))
+cat.tab2 = table(df$categorydi, df$public)
+sens2 = cat.tab2[2,2]/sum(cat.tab2[,2])
+spec2 = cat.tab2[1,1]/sum(cat.tab2[,1])
+
+df$categorydi = ifelse(df$category < 3, c(0), c(1))
+cat.tab3 = table(df$categorydi, df$public)
+sens3 = cat.tab3[2,2]/sum(cat.tab3[,2])
+spec3 = cat.tab3[1,1]/sum(cat.tab3[,1])
+
+df$categorydi = ifelse(df$category < 4, c(0), c(1))
+cat.tab4 = table(df$categorydi, df$public)
+sens4 = cat.tab4[2,2]/sum(cat.tab4[,2])
+spec4 = cat.tab4[1,1]/sum(cat.tab4[,1])
+
+df$categorydi = ifelse(df$category < 5, c(0), c(1))
+cat.tab5 = table(df$categorydi, df$public)
+sens5 = cat.tab5[2,2]/sum(cat.tab5[,2])
+spec5 = cat.tab5[1,1]/sum(cat.tab5[,1])
+
+mat = matrix(c(sens1, spec1, sens2, spec2, sens3, spec3, sens4, spec4, sens5, spec5), ncol = 2, byrow = TRUE)
+colnames(mat) = c('sensitivity', 'specifictiy')
+mat
+
+sens2; spec2;
+```
+
+We determine `2` to be the ideal cutoff of category based on the sensitivity and specificity table. With a sensitivity of `r sens2` and specificity of `r spec2`.
+
+``` {r}
+library(pROC)
+df$categorydi = ifelse(df$category < 2, c(0), c(1))
+roc_obj = roc(df$public, df$categorydi)
+A = auc(roc_obj)
+plot(roc_obj)
+```
+
+From the ROC curve and an AUC = `r A` we can see there is likely no relationship between category and public because from the data it is essentially a coin flip when determining public from category.
+
+#### Coastal/Public
+
+``` {r}
+coa.tab = table(df$coastal,df$public)
+sens = coa.tab[2,2]/sum(coa.tab[,2])
+spec = coa.tab[1,1]/sum(coa.tab[,1])
+```
+
+We observe a sensitivity of `r sens` and a specificity of `r spec`.
+
+``` {r}
+roc_obj = roc(df$public, df$coastal)
+A2 = auc(roc_obj)
+plot(roc_obj)
+```
+
+From the ROC plot and AUC = `r A2` we see there is possible a relationship between coastal and public. However with the small sample size and low specificity we cannot conclude that this is a good indicator of a public university.
+
+## Question 5
+
+#### 5.a
+
+``` {r}
+a = pnorm(14.5,11.5,3)-pnorm(8.5,11.5,3)
+a
+```
+There is a \%`r 100*round(a,4)` chance that a university is closed between 8.5 and 14.5 days after a hurricane.
+
+#### 5.b
+
+
+
+
+
+
+
+
