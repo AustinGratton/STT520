@@ -166,9 +166,27 @@ There is a \%`r 100*round(a,4)` chance that a university is closed between 8.5 a
 
 #### 5.b
 
+``` {r}
+b = pnorm(10,11.5,3,lower.tail = FALSE)
+b
+```
 
+There is a \%`r 100*round(b,4)` chance that a university is closed for more than 10 days.
 
+#### 5.c
 
+``` {r}
+c = pnorm(12,11.5,3)
+c
+```
+
+There is a \%`r 100*round(c,4)` chance that a university is closed for less than 12 days.
+
+## Question 6
+
+``` {r}
+table(df$category, df$public)
+```
 
 
 
