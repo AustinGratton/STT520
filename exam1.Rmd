@@ -1,0 +1,91 @@
+---
+title: "BioStats Exam 1"
+author: "Austin Gratton"
+date: "October 20, 2018"
+output: html_document
+---
+
+## Question 1
+
+Summary statistics and plots after removing missing data.
+
+```{r}
+df = read.csv('https://raw.githubusercontent.com/AustinGratton/STT520/master/Exam1data-1.csv')
+df = df[which(is.na(df[,2]) == FALSE),]
+
+info = matrix(c(mean(df$duration),sd(df$duration), mean(df$age),sd(df$age)), nrow = 2)
+colnames(info) = c('Mean', 'SD'); rownames(info) = c('Duration','Age')
+info
+```
+
+We observe the average and standard deviation among the duration of school closings and the age of the universities.
+
+``` {r}
+table(df$public)
+```
+
+We have 18 public universities and 7 private universities.
+
+``` {r}
+table(df$coastal)
+```
+
+We have 19 coastal universities and 6 inland.
+
+``` {r}
+plot(table(df$category), ylab = 'Occurence', xlab = 'Hurricane Category')
+```
+
+We see the breakdown of what category the hurricane was when impacting the universities.
+
+``` {r}
+boxplot(df$duration)
+```
+
+We observe most universities were closed from 2-20 days, however from the box plot we notice two potential outliers we will need to be aware of during analysis.
+
+##Question 2
+
+``` {r}
+mod = lm(df$duration ~ factor(df$public))
+summary(mod)
+```
+
+Immediately we do not see an affect on duration based on public vs. private schools. However we want to look at the summary plots to make sure our model is reliable.
+
+```{r}
+plot(mod)
+```
+
+We notice two points in all four summary plots appearing as outliers, with one of them being outside of Cook's distance. We should re-run the linear model with these two points removed and check the plots again.
+
+``` {r}
+mod2 = lm(df$duration[c(-6,-8)] ~ factor(df$public[c(-6,-8)]))
+plot(mod2)
+```
+
+With the two suspected outliers removed, we do not have any points outside of Cook's distance, and based on the Q-Q plot we can reasonably assume normality for the sake of this model. Now we want to look at the linear model to determine the affect of public vs. private.
+
+``` {r}
+summary(mod2)
+```
+
+With the outliers removed we still conclude that there is no significant effect of public vs. private university on the duration of the closing.
+
+## Question 3
+
+``` {r}
+u.priv = mean(df$duration[df$public == 0])
+u.pub = mean(df$duration[df$public == 1])
+sigma = sd(df$duration)
+delta = (u.priv - u.pub)/sigma
+pwr = qnorm(.8)
+sig = qnorm(1-(.05/2))
+N = (2*(sig + pwr)^2)/delta^2
+N
+```
+
+We would need a sample size of `68` with equal sized samples of public and private schools to ensure a significance level of `0.05` and a power of `0.8`.
+
+## Question 4
+
