@@ -107,7 +107,6 @@ zip.income = c(29467,
                48419,
                68125,
                77232)
-summary(abs(rnorm(1000,zip.income[1],zip.income[1]/5)))
 inc.alpha = 3
 inc.beta = 5
 inc.avg = inc.alpha/(inc.alpha+inc.beta)
@@ -119,9 +118,81 @@ for (i in 1:length(zip.codes)){
 }
 
 
-inc.est = NULL
+inc.var = NULL
 for (i in 1:length(zip.codes)){
-  inc.est = rbind(c(inc.est,get(paste('inc.',i,sep = ''))))
+  inc.var = rbind(c(inc.var,get(paste('inc.',i,sep = ''))))
 }
-summary(t(inc.est))
-hist(t(inc.est))
+summary(t(inc.var))
+hist(t(inc.var))
+
+#############hs grad
+
+zip.grad.prob = c(0.839,
+             0.896,
+             0.921,
+             0.947,
+             0.953,
+             0.945,
+             0.958,
+             0.89,
+             0.961,
+             0.994)
+
+zip.grad = NULL
+for (i in 1:length(zip.prop)){
+  zip.grad = c(zip.grad, rbinom(n=zip.prop[i], size = 1, prob = zip.grad.prob[i]))
+}
+for (i in 1:length(zip.prop)){
+  if (age.est[i] < 18){
+    zip.grad[i] = 0
+  } 
+}
+
+table(t(zip),t(zip.grad))
+
+
+drink.prop = .18
+smoke.var = NULL
+drink.var = NULL
+drink.var = c(drink.var, rbinom(n=length(zip), size = 1, prob = drink.prop))
+
+for (i in 1:length(zip)){
+  if (drink.var[i] == 1){
+    smoke.var = c(smoke.var, rbinom(1,size = 1, prob = .87))
+  } else {
+    smoke.var = c(smoke.var, rbinom(1,size = 1, prob = .0324))
+    0.1476
+  }
+}
+
+for (i in 1:length(zip.prop)){
+  if (age.est[i] < 14){
+    smoke.var[i] = 0
+    drink.var[i] = 0
+  } 
+}
+
+
+table(smoke.var,drink.var)
+table(smoke.var)/10000
+table(drink.var)/10000
+table(smoke.var,drink.var)
+
+
+#generating response
+var.names = c('y','zip','age','gender','hincome','grad','drink','smoke')
+
+
+#beta are in the order of ('beta-zero', 'age','gender','hincome','grad','drink','smoke') 
+beta = c(-5,.009,-.1,-.000004,-.1,1.15,1.16)
+
+logitp=beta[1]+beta[2]*age.est+beta[3]*zip.gender+beta[4]*inc.var+beta[5]*zip.grad+beta[6]*drink.var+beta[7]*smoke.var #linear predictor
+p=exp(logitp)/(exp(logitp)+1)#binimial probabilities
+yBin=rbinom(length(zip),1,p)
+table(yBin)
+
+
+#putting the data together
+dat = data.frame(t(rbind(yBin,zip,age.est,zip.gender,inc.var,zip.grad,drink.var,smoke.var)))
+colnames(dat) = var.names
+table1(~ age + factor(gender) + hincome + factor(grad) + factor(drink) + factor(smoke) | factor(yBin), data = dat )
